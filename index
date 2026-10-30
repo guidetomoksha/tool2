@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Anahata - Male & Female Voice Beej Mantra Chanter</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Tiro+Devanagari+Sanskrit&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #0a0612;
+      --card-bg: rgba(23, 14, 38, 0.78);
+      --gold: #ffcf40;
+      --gold-glow: rgba(255, 207, 64, 0.45);
+      --accent: #ff5722;
+      --text-light: #f5eedb;
+      --text-muted: #a89bc2;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+
+    body {
+      background: radial-gradient(circle at center, #1f1133 0%, var(--bg-dark) 100%);
+      color: var(--text-light);
+      font-family: 'Cinzel', serif;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    #particle-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      width: 92%;
+      max-width: 660px;
+      padding: 2.2rem;
+      background: var(--card-bg);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(255, 207, 64, 0.25);
+      border-radius: 28px;
+      box-shadow: 0 0 50px rgba(0, 0, 0, 0.8), 0 0 30px rgba(255, 207, 64, 0.15);
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 0.2rem;
+      text-shadow: 0 0 15px var(--gold-glow);
+    }
+
+    .sub-title {
+      font-size: 0.8rem;
+      letter-spacing: 2px;
+      color: var(--text-muted);
+      margin-bottom: 1.3rem;
+    }
+
+    .yantra-wrapper {
+      position: relative;
+      width: 220px;
+      height: 220px;
+      margin: 0 auto 1.2rem auto;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .yantra-svg {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      transform-origin: center center;
+    }
+
+    .rotate-cw {
+      animation: spinClockwise 36s linear infinite;
+    }
+
+    .pulse-glow {
+      animation: pulseAura 4s ease-in-out infinite;
+    }
+
+    @keyframes spinClockwise {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes pulseAura {
+      0%, 100% { filter: drop-shadow(0 0 8px rgba(255, 207, 64, 0.3)); transform: scale(1); }
+      50% { filter: drop-shadow(0 0 25px rgba(255, 110, 64, 0.7)); transform: scale(1.03); }
+    }
+
+    .mantra-display {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .beej-symbol {
+      font-family: 'Tiro Devanagari Sanskrit', serif;
+      font-size: 4.2rem;
+      font-weight: 700;
+      color: var(--gold);
+      line-height: 1;
+      text-shadow: 0 0 20px var(--gold-glow);
+      transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .beej-symbol.chant-pulse {
+      transform: scale(1.35);
+      color: #fff;
+      text-shadow: 0 0 35px var(--accent), 0 0 60px var(--gold);
+    }
+
+    .mantra-name {
+      font-size: 1.15rem;
+      letter-spacing: 2px;
+      color: #fff;
+      margin-top: 0.3rem;
+      font-weight: 700;
+    }
+
+    .mantra-deity {
+      font-size: 0.8rem;
+      color: var(--accent);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      font-weight: bold;
+    }
+
+    .mantra-meaning {
+      font-size: 0.8rem;
+      font-style: italic;
+      color: var(--text-muted);
+      margin: 0.4rem 0 1.2rem;
+      min-height: 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .controls-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 1.1rem;
+      text-align: left;
+    }
+
+    .control-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    label {
+      font-size: 0.73rem;
+      letter-spacing: 1.4px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    select {
+      background: rgba(14, 8, 25, 0.9);
+      border: 1px solid rgba(255, 207, 64, 0.35);
+      padding: 9px 12px;
+      border-radius: 10px;
+      color: var(--gold);
+      font-family: inherit;
+      font-size: 0.85rem;
+      outline: none;
+      transition: border 0.3s, box-shadow 0.3s;
+    }
+
+    select:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 10px var(--gold-glow);
+    }
+
+    .voice-options {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(10, 6, 18, 0.5);
+      padding: 8px 14px;
+      border-radius: 10px;
+      margin-bottom: 1.2rem;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    .voice-options label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      text-transform: none;
+      color: var(--text-light);
+    }
+
+    .counter-bar {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      background: rgba(12, 7, 22, 0.6);
+      border-radius: 14px;
+      padding: 0.75rem 1rem;
+      margin-bottom: 1.4rem;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .counter-item {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .counter-val {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--gold);
+    }
+
+    .counter-label {
+      font-size: 0.65rem;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    .btn-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+    }
+
+    button {
+      cursor: pointer;
+      font-family: inherit;
+      font-weight: bold;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      border: none;
+      border-radius: 12px;
+      padding: 12px 24px;
+      transition: all 0.3s ease;
+      font-size: 0.85rem;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #ff9f1c 0%, #ff4040 100%);
+      color: #fff;
+      box-shadow: 0 4px 18px rgba(255, 87, 34, 0.4);
+      flex: 2;
+    }
+
+    .btn-primary:hover {
+      box-shadow: 0 6px 25px rgba(255, 87, 34, 0.65);
+      transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.07);
+      color: var(--text-light);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      flex: 1;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+  </style>
+</head>
+<body>
+
+  <canvas id="particle-canvas"></canvas>
+
+  <div class="container">
+    <h1>Japa Sadhana</h1>
+    <div class="sub-title">Universal Beej Mantra Auto-Chanter</div>
+
+    <div class="yantra-wrapper">
+      <svg class="yantra-svg rotate-cw pulse-glow" viewBox="0 0 200 200">
+        <circle cx="100" cy="100" r="95" fill="none" stroke="rgba(255,207,64,0.3)" stroke-width="1.5" stroke-dasharray="4,4" />
+        <circle cx="100" cy="100" r="88" fill="none" stroke="rgba(255,207,64,0.6)" stroke-width="1" />
+        <g stroke="rgba(255, 87, 34, 0.5)" fill="none" stroke-width="1">
+          <circle cx="100" cy="60" r="28" />
+          <circle cx="100" cy="140" r="28" />
+          <circle cx="60" cy="100" r="28" />
+          <circle cx="140" cy="100" r="28" />
+          <circle cx="72" cy="72" r="28" />
+          <circle cx="128" cy="128" r="28" />
+          <circle cx="72" cy="128" r="28" />
+          <circle cx="128" cy="72" r="28" />
+        </g>
+        <polygon points="100,26 164,136 36,136" fill="none" stroke="#ffcf40" stroke-width="1.5" />
+        <polygon points="100,174 36,64 164,64" fill="none" stroke="#ffcf40" stroke-width="1.5" />
+        <circle cx="100" cy="100" r="45" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1" />
+      </svg>
+
+      <div class="mantra-display">
+        <div id="beej-symbol" class="beej-symbol">ॐ</div>
+      </div>
+    </div>
+
+    <div id="mantra-name" class="mantra-name">Pranava Mantra</div>
+    <div id="mantra-deity" class="mantra-deity">Supreme Reality / Brahman</div>
+    <div id="mantra-meaning" class="mantra-meaning">The primordial sound vibration of creation.</div>
+
+    <div class="controls-grid">
+      <div class="control-group">
+        <label for="mantra-select">Beej Mantra</label>
+        <select id="mantra-select"></select>
+      </div>
+
+      <!-- Male / Female Chanting Voice Selector -->
+      <div class="control-group">
+        <label for="voice-gender">Voice Gender</label>
+        <select id="voice-gender">
+          <option value="male" selected>Male (Monk Deep Tone)</option>
+          <option value="female">Female (Priestess Clear Tone)</option>
+          <option value="auto">System Default Voice</option>
+        </select>
+      </div>
+
+      <div class="control-group">
+        <label for="target-count">Target Chants</label>
+        <select id="target-count">
+          <option value="11">11 Repetitions</option>
+          <option value="21">21 Repetitions</option>
+          <option value="54">54 Repetitions (Half Mala)</option>
+          <option value="108" selected>108 Repetitions (Maha Mala)</option>
+          <option value="1008">1008 Repetitions</option>
+          <option value="0">Continuous (Infinite)</option>
+        </select>
+      </div>
+
+      <div class="control-group">
+        <label for="tempo-speed">Speed / Cadence</label>
+        <select id="tempo-speed">
+          <option value="3400">Slow & Deep (~18/min)</option>
+          <option value="2400" selected>Steady Japa (~25/min)</option>
+          <option value="1600">Fast Recitation (~38/min)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="voice-options">
+      <label>
+        <input type="checkbox" id="voice-toggle" checked />
+        <span>Spoken Voice Chant</span>
+      </label>
+      <label>
+        <input type="checkbox" id="bell-toggle" checked />
+        <span>Temple Resonance Drone</span>
+      </label>
+    </div>
+
+    <div class="counter-bar">
+      <div class="counter-item">
+        <span id="current-count" class="counter-val">0</span>
+        <span class="counter-label">Completed</span>
+      </div>
+      <div class="counter-item">
+        <span id="remaining-count" class="counter-val">108</span>
+        <span class="counter-label">Remaining</span>
+      </div>
+      <div class="counter-item">
+        <span id="mala-count" class="counter-val">0</span>
+        <span class="counter-label">Malas Done</span>
+      </div>
+    </div>
+
+    <div class="btn-actions">
+      <button id="start-btn" class="btn-primary">Start Chanting</button>
+      <button id="reset-btn" class="btn-secondary">Reset</button>
+    </div>
+  </div>
+
+  <script>
+    const beejMantras = [
+      { id: "om", name: "Om (Aum)", beej: "ॐ", spoken: "ॐ... ॐ...", deity: "Supreme Brahman / Shiva", pitch: 136.1, meaning: "Primordial cosmic vibration of creation." },
+      { id: "shreem", name: "Shreem", beej: "श्रीं", spoken: "श्रीम", deity: "Maa Lakshmi", pitch: 174.0, meaning: "Bestows wealth, abundance, radiance, and inner beauty." },
+      { id: "hreem", name: "Hreem", beej: "ह्रीं", spoken: "ह्रीम", deity: "Maa Bhuvaneshwari / Durga", pitch: 210.0, meaning: "Opens divine consciousness, clarity, and protection." },
+      { id: "kleem", name: "Kleem", beej: "क्लीं", spoken: "क्लीम", deity: "Lord Krishna / Kamakhya", pitch: 240.0, meaning: "Magnetic attraction, divine love, and spiritual fulfillment." },
+      { id: "aim", name: "Aim", beej: "ऐं", spoken: "ऐम", deity: "Maa Saraswati", pitch: 288.0, meaning: "Awakens intellect, wisdom, memory, and speech." },
+      { id: "dum", name: "Dum", beej: "दुं", spoken: "दुम", deity: "Maa Durga", pitch: 195.0, meaning: "Invokes invincible protection, fearlessness, and victory." },
+      { id: "kreem", name: "Kreem", beej: "क्रीं", spoken: "क्रीम", deity: "Maa Kali", pitch: 160.0, meaning: "Dissolves illusions, fears, and karmic bonds." },
+      { id: "gam", name: "Gam", beej: "गं", spoken: "गम", deity: "Lord Ganesha", pitch: 180.0, meaning: "Removes blockages and obstacles from all auspicious paths." },
+      { id: "glaum", name: "Glaum", beej: "ग्लौं", spoken: "ग्लौम", deity: "Siddha Ganapati", pitch: 175.0, meaning: "Deep obstacle clearing and grounding prosperity." },
+      { id: "raum", name: "Raum", beej: "रौं", spoken: "रौम", deity: "Lord Shiva (Rudra)", pitch: 144.0, meaning: "Transcends destruction of negative ego and fears." },
+      { id: "ham", name: "Ham", beej: "हं", spoken: "हम", deity: "Lord Hanuman / Throat Chakra", pitch: 200.0, meaning: "Infuses courage, pranic vitality, and pure expression." },
+      { id: "ram", name: "Ram", beej: "रां", spoken: "राम", deity: "Lord Rama / Solar Fire", pitch: 216.0, meaning: "Awakens righteous power and inner fire." },
+      { id: "sham", name: "Sham", beej: "शं", spoken: "शम", deity: "Lord Shani (Saturn)", pitch: 120.0, meaning: "Calms karmic turbulence, restores discipline and peace." },
+      { id: "sauh", name: "Sauh", beej: "सौः", spoken: "सौह", deity: "Tripura Sundari", pitch: 260.0, meaning: "The divine nectar of cosmic illumination and liberation." },
+      { id: "vam", name: "Vam", beej: "वं", spoken: "वम", deity: "Lord Varuna / Sacral", pitch: 190.0, meaning: "Emotional flow, adaptability, and cellular rejuvenation." },
+      { id: "yam", name: "Yam", beej: "यं", spoken: "यम", deity: "Vayu / Anahata (Heart)", pitch: 256.0, meaning: "Awakens heart chakra, compassion, and divine peace." },
+      { id: "lam", name: "Lam", beej: "लं", spoken: "लम", deity: "Prithvi / Muladhara (Root)", pitch: 128.0, meaning: "Grounds physical stability, vital power, and foundation." }
+    ];
+
+    const mantraSelect = document.getElementById("mantra-select");
+    const voiceGenderSelect = document.getElementById("voice-gender");
+    const targetSelect = document.getElementById("target-count");
+    const tempoSelect = document.getElementById("tempo-speed");
+    const voiceToggle = document.getElementById("voice-toggle");
+    const bellToggle = document.getElementById("bell-toggle");
+    const beejSymbol = document.getElementById("beej-symbol");
+    const mantraName = document.getElementById("mantra-name");
+    const mantraDeity = document.getElementById("mantra-deity");
+    const mantraMeaning = document.getElementById("mantra-meaning");
+    const currentCountEl = document.getElementById("current-count");
+    const remainingCountEl = document.getElementById("remaining-count");
+    const malaCountEl = document.getElementById("mala-count");
+    const startBtn = document.getElementById("start-btn");
+    const resetBtn = document.getElementById("reset-btn");
+
+    beejMantras.forEach((m, idx) => {
+      const opt = document.createElement("option");
+      opt.value = idx;
+      opt.textContent = `${m.beej} - ${m.name} (${m.deity})`;
+      mantraSelect.appendChild(opt);
+    });
+
+    let isChanting = false;
+    let timerId = null;
+    let currentCount = 0;
+    let malasCompleted = 0;
+
+    // Web Audio Synthesizer (Resonant Singing Bowl)
+    let audioCtx = null;
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+
+    function playBellSound(baseFreq) {
+      if (!audioCtx || !bellToggle.checked) return;
+      const now = audioCtx.currentTime;
+      const isFemale = voiceGenderSelect.value === 'female';
+      const genderShift = isFemale ? 1.5 : 0.85;
+
+      const partials = [
+        { ratio: 1.0 * genderShift, gain: 0.35, decay: 2.6 },
+        { ratio: 2.76 * genderShift, gain: 0.16, decay: 1.9 },
+        { ratio: 0.5 * genderShift, gain: 0.28, decay: 3.2 }
+      ];
+
+      partials.forEach(p => {
+        const osc = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(baseFreq * p.ratio, now);
+
+        gainNode.gain.setValueAtTime(0, now);
+        gainNode.gain.linearRampToValueAtTime(p.gain, now + 0.04);
+        gainNode.gain.exponentialRampToValueAtTime(0.0001, now + p.decay);
+
+        osc.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+
+        osc.start(now);
+        osc.stop(now + p.decay);
+      });
+    }
+
+    // Voice Engine with Explicit Male/Female Voice Matching
+    let availableVoices = [];
+    function loadVoices() {
+      if ('speechSynthesis' in window) {
+        availableVoices = window.speechSynthesis.getVoices();
+      }
+    }
+    loadVoices();
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.onvoiceschanged = loadVoices;
+    }
+
+    function getSelectedVoice(gender) {
+      if (!availableVoices.length) return null;
+
+      const hindiOrIndianVoices = availableVoices.filter(v => 
+        v.lang.toLowerCase().includes("hi") || 
+        v.lang.toLowerCase().includes("in") || 
+        v.lang.toLowerCase().includes("mr") || 
+        v.lang.toLowerCase().includes("sa")
+      );
+
+      const pool = hindiOrIndianVoices.length > 0 ? hindiOrIndianVoices : availableVoices;
+
+      if (gender === 'female') {
+        return pool.find(v => {
+          const name = v.name.toLowerCase();
+          return name.includes("female") || name.includes("woman") || name.includes("zira") || 
+                 name.includes("kalpana") || name.includes("swara") || name.includes("veena") || 
+                 name.includes("samantha") || name.includes("aditi") || name.includes("priya");
+        }) || pool[0];
+      } else if (gender === 'male') {
+        return pool.find(v => {
+          const name = v.name.toLowerCase();
+          return name.includes("male") || name.includes("man") || name.includes("david") || 
+                 name.includes("rishi") || name.includes("madhav") || name.includes("hemant") || 
+                 name.includes("george") || name.includes("ravi");
+        }) || pool[0];
+      }
+      return pool[0];
+    }
+
+    function speakBeej(mantraObj) {
+      if (!('speechSynthesis' in window) || !voiceToggle.checked) return;
+
+      window.speechSynthesis.cancel();
+
+      const utterance = new SpeechSynthesisUtterance(mantraObj.spoken || mantraObj.beej);
+      const gender = voiceGenderSelect.value;
+      const matchedVoice = getSelectedVoice(gender);
+
+      if (matchedVoice) {
+        utterance.voice = matchedVoice;
+        utterance.lang = matchedVoice.lang;
+      } else {
+        utterance.lang = "hi-IN";
+      }
+
+      // Acoustic pitch sculpting
+      if (gender === 'female') {
+        utterance.pitch = 1.35; // Priestess high, clear resonance
+        utterance.rate = 0.84;
+      } else if (gender === 'male') {
+        utterance.pitch = 0.62; // Deep Himalayan monk resonance
+        utterance.rate = 0.78;
+      } else {
+        utterance.pitch = 0.95;
+        utterance.rate = 0.82;
+      }
+
+      window.speechSynthesis.speak(utterance);
+    }
+
+    function updateDisplay(mantra) {
+      beejSymbol.textContent = mantra.beej;
+      mantraName.textContent = mantra.name;
+      mantraDeity.textContent = mantra.deity;
+      mantraMeaning.textContent = mantra.meaning;
+    }
+
+    mantraSelect.addEventListener("change", (e) => {
+      const selected = beejMantras[e.target.value];
+      updateDisplay(selected);
+      if (!isChanting) {
+        initAudio();
+        playBellSound(selected.pitch);
+        speakBeej(selected);
+      }
+    });
+
+    voiceGenderSelect.addEventListener("change", () => {
+      if (!isChanting) {
+        const selected = beejMantras[mantraSelect.value];
+        initAudio();
+        playBellSound(selected.pitch);
+        speakBeej(selected);
+      }
+    });
+
+    function stepChant() {
+      const target = parseInt(targetSelect.value);
+      const selectedMantra = beejMantras[mantraSelect.value];
+
+      currentCount++;
+      currentCountEl.textContent = currentCount;
+
+      if (target > 0) {
+        const rem = Math.max(0, target - currentCount);
+        remainingCountEl.textContent = rem;
+      } else {
+        remainingCountEl.textContent = "∞";
+      }
+
+      if (currentCount % 108 === 0) {
+        malasCompleted++;
+        malaCountEl.textContent = malasCompleted;
+      }
+
+      // Visual pulse
+      beejSymbol.classList.add("chant-pulse");
+      setTimeout(() => {
+        beejSymbol.classList.remove("chant-pulse");
+      }, 450);
+
+      // Acoustic pulse
+      playBellSound(selectedMantra.pitch);
+      speakBeej(selectedMantra);
+
+      if (target > 0 && currentCount >= target) {
+        stopChanter();
+        setTimeout(() => alert("Sadhana Complete! May peace and blessings follow you."), 300);
+      }
+    }
+
+    function startChanter() {
+      initAudio();
+      loadVoices();
+      isChanting = true;
+      startBtn.textContent = "Pause";
+      startBtn.style.background = "#555";
+      stepChant();
+      const interval = parseInt(tempoSelect.value);
+      timerId = setInterval(stepChant, interval);
+    }
+
+    function stopChanter() {
+      isChanting = false;
+      startBtn.textContent = "Start Chanting";
+      startBtn.style.background = "";
+      clearInterval(timerId);
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+    }
+
+    startBtn.addEventListener("click", () => {
+      if (isChanting) {
+        stopChanter();
+      } else {
+        startChanter();
+      }
+    });
+
+    resetBtn.addEventListener("click", () => {
+      stopChanter();
+      currentCount = 0;
+      malasCompleted = 0;
+      currentCountEl.textContent = "0";
+      malaCountEl.textContent = "0";
+      const target = parseInt(targetSelect.value);
+      remainingCountEl.textContent = target === 0 ? "∞" : target;
+    });
+
+    targetSelect.addEventListener("change", () => {
+      const target = parseInt(targetSelect.value);
+      remainingCountEl.textContent = target === 0 ? "∞" : Math.max(0, target - currentCount);
+    });
+
+    tempoSelect.addEventListener("change", () => {
+      if (isChanting) {
+        clearInterval(timerId);
+        timerId = setInterval(stepChant, parseInt(tempoSelect.value));
+      }
+    });
+
+    // Particle Background Animation
+    const canvas = document.getElementById("particle-canvas");
+    const ctx = canvas.getContext("2d");
+    let particles = [];
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener("resize", resizeCanvas);
+    resizeCanvas();
+
+    class Particle {
+      constructor() { this.reset(); }
+      reset() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.size = Math.random() * 2 + 0.5;
+        this.speedX = (Math.random() - 0.5) * 0.4;
+        this.speedY = (Math.random() - 0.5) * 0.4;
+        this.alpha = Math.random() * 0.6 + 0.2;
+      }
+      update() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+        if (this.x < 0 || this.x > canvas.width || this.y < 0 || this.y > canvas.height) this.reset();
+      }
+      draw() {
+        ctx.fillStyle = `rgba(255, 207, 64, ${this.alpha})`;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    for (let i = 0; i < 60; i++) particles.push(new Particle());
+
+    function animateParticles() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles.forEach(p => { p.update(); p.draw(); });
+      requestAnimationFrame(animateParticles);
+    }
+    animateParticles();
+  </script>
+</body>
+</html>
